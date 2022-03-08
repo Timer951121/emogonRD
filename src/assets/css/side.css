@@ -1,0 +1,25 @@
+
+.side {position: absolute; top: 0; width: 500px; right: 0px; height: 100vh; background-color: white; border-left: 1px solid #108CCA; transition: all 0.5s;}
+.canvas-page .side {z-index: 1;}
+.side * {font-size: 24px;}
+.side.open {right: 0px;}
+.side-wrapper {position: relative; width: calc(100% - 40px); height: calc(100% - 110px); padding: 30px 20px; padding-top: 50px;}
+.side .arrow {position: absolute; top: 10px; left: -60px; cursor: pointer; transform: rotate(180deg); transition: all 0.3s;}
+.side.open .arrow {left: 0px; transform: rotate(0deg);}
+
+
+
+.side .part {margin-top: 30px;}
+.side .part .title {color: #108CCA; font-size: 24px; font-weight: 700;}
+.side .part .part-content {margin-top: 20px;}
+.side .part .part-content .button {flex-direction: column; background-color: white; color: #108CCA; margin: 10px; border: 2px solid #108CCA; width: 180px; text-align: center; padding: 12px;}
+.side .part .part-content .button:hover {background-color: #DDDDDD;}
+.side .part .part-content .button.active {background-color: #108CCA; color: white;}
+
+.side .part.size-part .part-content {flex-direction: column;}
+
+.side .part.switch-part .part-content label {font-weight: 700; color: #108CCA; cursor: pointer;}
+.side .part.switch-part .part-content .switch-wrapper { width: 100px; height: 40px; background-color: #888888; border-radius: 20px; margin: 0px 20px; cursor: pointer; transition: all 0.3s;}
+.side .part.switch-part .part-content .switch-wrapper.push { background-color: #108CCA;}
+.side .part.switch-part .part-content .switch-wrapper .switch-inner {width: 32px; height: 32px; margin-right: 58px; transition: all 0.3s; background-color: white;  border-radius: 50%;}
+.side .part.switch-part .part-content .switch-wrapper.push .switch-inner {margin-right: -58px; }
