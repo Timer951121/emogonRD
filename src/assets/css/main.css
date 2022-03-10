@@ -24,7 +24,7 @@ body { overflow: hidden; margin: 0; padding: 0; }
 	100% { transform:translateX(-30px); }
 }
 
-.button {background-color: #108CCA; font-size: 24px; font-weight: 700; border-radius: 8px; padding: 10px 30px; transition: all 0.2s; color: white; margin: 20px; cursor: pointer;}
+.button {background-color: #108CCA; font-size: 24px; font-weight: 700; border-radius: 8px; padding: 10px 30px; transition: all 0.2s; color: white; margin: 20px; cursor: pointer; text-align: center;}
 .button:hover {background-color: #123bc2;}
 
 .purpose {flex-direction: column;}

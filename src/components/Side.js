@@ -1,25 +1,19 @@
 import React from 'react';
 import imgArrow from '../assets/images/arrow.png';
-
-const sizeArr = [
-	{key:'mini', label:'Mini'},
-	{key:'small', label:'Small'},
-	{key:'regular', label:'Regular'},
-	{key:'xl', label:'XL'},
-]
+import { sizeArr, colArr } from '../data/info';
 
 export default class SideComponent extends React.Component {
 	constructor(props) {
 		super(props);
-		const {pageKey, rear, brake} = props;
-		this.state = {pageKey, side:false, selSize:null, rear, brake};
+		const {pageKey, rear, brake, selSize, selCol} = props;
+		this.state = {pageKey, side:false, selSize, selCol, rear, brake};
 	}
 
 	componentDidMount() {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		['pageKey', 'selSize', 'rear', 'brake'].forEach(key => {
+		['pageKey', 'selSize', 'selCol', 'rear', 'brake'].forEach(key => {
 			if (key==='pageKey' && this.state.pageKey !== 'canvas' && nextProps.pageKey==='canvas') {
 				setTimeout(() => { this.setState({side:true}) }, 500);
 				setTimeout(() => { this.setState({side:false}) }, 2000);
@@ -32,11 +26,19 @@ export default class SideComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, side, selSize, rear, brake} = this.state;
+		const {pageKey, side, selSize, selCol, rear, brake} = this.state;
 		return (
 			<div className={`side ${side?'open':''}`}>
 				<div className='side-wrapper'>
 					{/* <img className='arrow' src={imgArrow} onClick={()=>this.setState({side:!side})}></img> */}
+					<div className='part color-part'>
+						<div className='title'>Choice color</div>
+						<div className='part-content flex'>
+							{colArr.map((item, idx) =>
+								<img className={`color-img ${selCol===item.hex?'active':''}`} src={item.img} onClick={()=>this.props.setSelCol(item.hex)} key={idx}></img>
+							) }
+						</div>
+					</div>
 					<div className='part size-part'>
 						<div className='title'>What windshield do you wish?</div>
 						<div className='part-content flex'>

@@ -5,7 +5,7 @@ import PurposeComponent from './Purpose';
 import CanvasComponent from './Canvas';
 import SideComponent from './Side';
 import LoadingComponent from './Loading';
-// import {baseUrl, GetDeviceInfo} from '../data/config';
+import { sizeArr, colArr } from '../data/info';
 
 import '../assets/css/index.css';
 
@@ -29,7 +29,7 @@ function getWSize(wWidth, wHeight) {
 export default class MainComponent extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selSize:null};
+		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selSize:sizeArr[0].key, selCol:colArr[0].hex};
 	}
 
 	componentDidMount() {
@@ -44,7 +44,7 @@ export default class MainComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, loading, portrait, wSize, rear, brake, selSize} = this.state;
+		const {pageKey, loading, portrait, wSize, rear, brake, selSize, selCol} = this.state;
 		return (
 			<div className={`page-wrapper ${device?'mobile':'web'} ${device} ${pageKey}-page`}>
 				<StartComponent
@@ -59,6 +59,7 @@ export default class MainComponent extends React.Component {
 					skipTest={skipTest}
 					pageKey={pageKey}
 					wSize={wSize}
+					selCol={selCol}
 					selSize={selSize}
 					rear={rear}
 					brake={brake}
@@ -66,11 +67,13 @@ export default class MainComponent extends React.Component {
 				></CanvasComponent>
 				<SideComponent
 					pageKey={pageKey}
+					selCol={selCol}
 					selSize={selSize}
 					rear={rear}
 					brake={brake}
 					setRear={rear=>this.setState({rear})}
 					setBrake={brake=>this.setState({brake})}
+					setSelCol={selCol=>this.setState({selCol})}
 					setSelSize={selSize=>this.setState({selSize})}
 				></SideComponent>
 				<LoadingComponent
