@@ -9,7 +9,7 @@ import { sizeArr, colArr } from '../data/info';
 
 import '../assets/css/index.css';
 
-const skipTest = false;
+const testMode = true;
 const device = getDevice();
 function getDevice() {
 	const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -44,7 +44,7 @@ export default class MainComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, loading, portrait, wSize, rear, brake, selSize, selCol} = this.state;
+		const {pageKey, loading, portrait, wSize, rear, brake, selSize, selCol, selPart, selSubPart} = this.state;
 		return (
 			<div className={`page-wrapper ${device?'mobile':'web'} ${device} ${pageKey}-page`}>
 				<StartComponent
@@ -53,16 +53,19 @@ export default class MainComponent extends React.Component {
 				></StartComponent>
 				<PurposeComponent
 					pageKey={pageKey}
-					callCanvasPage={(part, subPart)=>this.setState({pageKey:'canvas'})}
+					callCanvasPage={(selSubPart)=>this.setState({pageKey:'canvas', selSubPart})}
 				></PurposeComponent>
 				<CanvasComponent
-					skipTest={skipTest}
+					testMode={testMode}
 					pageKey={pageKey}
 					wSize={wSize}
+					selPart={selPart}
+					selSubPart={selSubPart}
 					selCol={selCol}
 					selSize={selSize}
 					rear={rear}
 					brake={brake}
+					setPage={(pageKey)=>this.setState({pageKey})}
 					setLoading={(loading, loadPro)=>this.setState({loading, loadPro})}
 				></CanvasComponent>
 				<SideComponent

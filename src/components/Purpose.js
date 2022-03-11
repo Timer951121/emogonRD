@@ -45,7 +45,7 @@ export default class PurposeComponent extends React.Component {
 								{item.subArr.map((subItem, subIdx) =>
 									<div className='sub-button button' onClick={() => {
 										if (selPart !== item.key) return;
-										this.props.callCanvasPage(item, subItem);
+										this.props.callCanvasPage(subItem.key);
 									}} key={subIdx}>{subItem.label}</div>
 								) }
 							</div>

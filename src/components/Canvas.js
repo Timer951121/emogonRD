@@ -6,6 +6,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import modelCar from '../assets/model/test.fbx';
+import { SetBottomMesh, modelH } from '../data/info';
 
 import imgEnvPX from '../assets/images/px.png';
 import imgEnvPY from '../assets/images/py.png';
@@ -16,8 +17,6 @@ import imgEnvNZ from '../assets/images/nz.png';
 
 const imgEnv0Arr = [imgEnvPX, imgEnvNX, imgEnvPY, imgEnvNY, imgEnvPZ, imgEnvNZ];
 
-const tPosY = -2, testMode = false;
-
 const stats = Stats()
 document.body.appendChild(stats.dom)
 
@@ -25,7 +24,7 @@ export default class CanvasComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		const {pageKey, selSize, selCol} = props;
-		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = [];
+		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.backArr = []; this.bottomArr = [];
 		this.state = {pageKey, rotate:1, selCol, selSize, envMode:'light'}; this.mouseStatus = 'none';
 	}
 
@@ -63,12 +62,13 @@ export default class CanvasComponent extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		['pageKey', 'rear', 'brake', 'selSize', 'selCol'].forEach(key => {
+		['pageKey', 'rear', 'brake', 'selSize', 'selCol', 'selSubPart'].forEach(key => {
 			if (this.state[key] !== nextProps[key]) {
 				this.setState({[key]:nextProps[key]}, () => {
 					if (key==='selCol') this.setColor();
 					else if (key === 'rear' && this.rearGroup) this.rearGroup.visible = this.state.rear;
 					else if (key === 'brake' && this.brakeGroup) this.brakeGroup.visible = this.state.brake;
+					else if (key === 'selSubPart') SetBottomMesh(this.state.selSubPart, this.modelObj);
 				});
 			}
 		});
@@ -126,21 +126,23 @@ export default class CanvasComponent extends React.Component {
 	loadPlane = () => {
 		const planeGeo = new THREE.PlaneGeometry(100, 100);
 		const planeMat = new THREE.MeshStandardMaterial({color:0xFFFFFF}); // planeGeo = new THREE.BoxGeometry(100, 0.01, 100), 
-		const planeMesh = new THREE.Mesh(planeGeo, planeMat); planeMesh.receiveShadow = true; planeMesh.position.y = tPosY;
+		const planeMesh = new THREE.Mesh(planeGeo, planeMat); planeMesh.receiveShadow = true; planeMesh.position.y = modelH/-2;
 		planeMesh.rotation.x = Math.PI / -2;
 		this.totalGroup.add(planeMesh);
 	}
 
 	loadModel = () => {
 		const envMap0 = new THREE.CubeTextureLoader().load(imgEnv0Arr);
+		const bodyMat = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, envMap:envMap0, reflectivity:0, roughness:0, metalness:0 })
 		new FBXLoader().load( modelCar, (object) => {
 			object.traverse(child => {
-				if 	(child.name.includes('body')) {
-					child.material = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, envMap:envMap0, reflectivity:0, roughness:0, metalness:0 });
+				if (child.name.includes('PLATTFORM')) this.bottomArr.push(child);
+				if (child.name.includes('back')) {child.oriBackPos = Math.round(child.position.x * 1000)/1000; this.backArr.push(child);}
+				if (child.name.includes('body')) {
+					child.material = bodyMat;
 					// child.material = new THREE.MeshStandardMaterial({envMap:envMap0, reflectivity:0.9, metalness:0.4, roughness:0.5});
 					this.bodyMeshArr.push(child);
 				} else if (child.name.includes('Wheel')) {this.wheelArr.push(child); }
-				if (child.name==='PLATTFORM') this.bottomMesh = child;
 				else if (child.name === 'Rear') this.rearGroup = child;
 				else if (child.name === 'Brake') this.brakeGroup = child;
 				else if (child.name === 'FRONT_BLACK')
@@ -158,10 +160,10 @@ export default class CanvasComponent extends React.Component {
 					// child.material = new THREE.MeshBasicMaterial({color:colVal});
 				}
 			})
-			const vPos = new THREE.Box3().setFromObject(object), vSize = vPos.getSize(), scl = 4/vSize.x;
+			const vPos = new THREE.Box3().setFromObject(object), vSize = vPos.getSize(), scl = modelH/vSize.y;
 			object.scale.set(scl, scl, scl);
-			object.position.x = -2;
-			object.position.y = tPosY;
+			object.position.y = modelH/-2;
+			this.modelObj = object;
 			this.setColor();
 			this.totalGroup.add(object);
 			this.props.setLoading(false);
@@ -217,6 +219,9 @@ export default class CanvasComponent extends React.Component {
 				<div className='setting-wrapper'>
 					<div className='set-item button' onClick={()=> this.setState({rotate:rotate===1?0:1}) }>{rotate?'Stop':'Rotate'}</div>
 					<div className='set-item button' onClick={this.setEnvMode }>{envMode==='light'?'Dark':'Light'}</div>
+					{this.props.testMode &&
+						<div className='set-item button' onClick={()=>this.props.setPage('purpose') }>Back</div>
+					}
 				</div>
 			</div>
 		);
