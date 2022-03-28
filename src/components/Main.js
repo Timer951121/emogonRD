@@ -29,7 +29,7 @@ function getWSize(wWidth, wHeight) {
 export default class MainComponent extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selSize:sizeArr[0].key, selCol:colArr[0].hex};
+		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selCol:colArr[0].hex, frontArr:[], selFront:'', selEasyTwo:''};
 	}
 
 	componentDidMount() {
@@ -44,25 +44,41 @@ export default class MainComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, loading, portrait, wSize, rear, brake, selSize, selCol, selPart, selSubPart} = this.state;
+		const {pageKey, loading, portrait, selType, wSize, rear, box, brake, selCol, selPart, selSubPart, frontArr, selFront, selEasyTwo} = this.state;
 		return (
 			<div className={`page-wrapper ${device?'mobile':'web'} ${device} ${pageKey}-page`}>
 				<StartComponent
 					pageKey={pageKey}
-					callPurposePage={(type)=>this.setState({pageKey:'purpose'})}
+					callPurposePage={(selType)=>this.setState({pageKey:'purpose', selType})}
 				></StartComponent>
 				<PurposeComponent
 					pageKey={pageKey}
-					callCanvasPage={(selSubPart)=>this.setState({pageKey:'canvas', selSubPart})}
+					callCanvasPage={(selPart, selSubPart)=>{
+						this.setState({pageKey:'canvas', selPart, selSubPart, selEasyTwo:''}, () => {
+							const frontType = selSubPart.includes('space')?'xl':'regular';
+							var box = selSubPart.includes('easy')?false:true;
+							var preSelFront = 'mini';
+							if (selType==='custom') { box = false; }
+							else { preSelFront = frontType; }
+							this.setState({rear:box, box,
+								selFront:preSelFront,
+								frontArr:frontType==='xl'?['xl']:['mini', 'small', 'regular'],
+								selEasyTwo: 'basic'
+							});
+						})
+					}}
 				></PurposeComponent>
 				<CanvasComponent
 					testMode={testMode}
 					pageKey={pageKey}
 					wSize={wSize}
+					selType={selType}
 					selPart={selPart}
 					selSubPart={selSubPart}
 					selCol={selCol}
-					selSize={selSize}
+					selEasyTwo={selEasyTwo}
+					selFront={selFront}
+					box={box}
 					rear={rear}
 					brake={brake}
 					setPage={(pageKey)=>this.setState({pageKey})}
@@ -70,14 +86,24 @@ export default class MainComponent extends React.Component {
 				></CanvasComponent>
 				<SideComponent
 					pageKey={pageKey}
-					selCol={selCol}
-					selSize={selSize}
+					box={box}
 					rear={rear}
 					brake={brake}
-					setRear={rear=>this.setState({rear})}
+					selCol={selCol}
+					selType={selType}
+					selFront={selFront}
+					frontArr={frontArr}
+					selEasyTwo={selEasyTwo}
+					selSubPart={selSubPart}
+					setRear={rear=>this.setState({rear}, () => {
+						if (rear) this.setState({selFront:selSubPart.includes('space')?'xl':'regular'})
+					})}
 					setBrake={brake=>this.setState({brake})}
 					setSelCol={selCol=>this.setState({selCol})}
-					setSelSize={selSize=>this.setState({selSize})}
+					setSelFront={selFront=>this.setState({selFront}, () => {
+						if (selFront === 'mini' || selFront === 'small') this.setState({rear:false})
+					})}
+					setSelEasyTwo={selEasyTwo=>this.setState({selEasyTwo})}
 				></SideComponent>
 				<LoadingComponent
 					loading={loading}

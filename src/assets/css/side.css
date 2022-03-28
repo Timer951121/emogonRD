@@ -15,14 +15,18 @@
 .side .part .part-content .button {flex-direction: column; background-color: white; color: #108CCA; margin: 10px; border: 2px solid #108CCA; width: 180px; padding: 12px;}
 .side .part .part-content .button:hover {background-color: #DDDDDD;}
 .side .part .part-content .button.active {background-color: #108CCA; color: white;}
+.side .part .part-content .button.disable:hover {background-color: #FFFFFF; color: #108CCA;}
 
 .side .part.color-part .part-content .color-img {width: 50px; height: 50px; margin: auto; border: 3px solid white; cursor: pointer; border-radius: 50%; padding: 6px;}
 .side .part.color-part .part-content .color-img.active {border-color: #3E6AE1;}
 
 .side .part.size-part .part-content {flex-direction: column;}
+.side .part.easyTwo-part .part-content {flex-direction: column;}
 
 .side .part.switch-part .part-content label {font-weight: 700; color: #108CCA; cursor: pointer;}
 .side .part.switch-part .part-content .switch-wrapper { width: 100px; height: 40px; background-color: #888888; border-radius: 20px; margin: 0px 20px; cursor: pointer; transition: all 0.3s;}
 .side .part.switch-part .part-content .switch-wrapper.push { background-color: #108CCA;}
 .side .part.switch-part .part-content .switch-wrapper .switch-inner {width: 32px; height: 32px; margin-right: 58px; transition: all 0.3s; background-color: white;  border-radius: 50%;}
 .side .part.switch-part .part-content .switch-wrapper.push .switch-inner {margin-right: -58px; }
+
+.side .part.rear-part.hide {display: none;}
