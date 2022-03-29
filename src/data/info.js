@@ -24,8 +24,15 @@ export const sizeArr = [
 ]
 
 export const easyTwoArr = [
-	{key:'basic', label:'Basic'},
-	{key:'passenger', label:'Passenger'},
-	{key:'eppBox', label:'EPP Box'},
-	{key:'pickUp', label:'Pick-Up'},
+	{key:'basic', label:'Basic', inArr:['easyTwo', 'carGolion', 'space', 'spaceXl']},
+	{key:'passenger', label:'Passenger', inArr:['easyTwo']},
+	{key:'eppBox', label:'EPP Box', inArr:['easyTwo']},
+	{key:'pickUp', label:'Pick-Up', inArr:['easyTwo', 'carGolion', 'space', 'spaceXl']},
+	{key:'cargo', label:'Cargo', inArr:['carGolion', 'space', 'spaceXl']},
 ]
+
+// export const middleArr = [
+// 	{key:'basic', label:'Basic'},
+// 	{key:'pickUp', label:'Pick-Up'},
+// 	{key:'basic', label:'Basic'},
+// ]

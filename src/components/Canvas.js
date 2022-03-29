@@ -24,7 +24,7 @@ export default class CanvasComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		const {pageKey, selSize, selCol, selEasyTwo} = props;
-		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.boxArr = []; this.frontArr=[]; this.frameArr=[]; this.ceilingArr = []; this.easyTwoArr = [];
+		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.bottomArr=[]; this.rearArr = []; this.backArr = []; this.boxArr = []; this.frontArr=[]; this.frameArr=[]; this.ceilingArr = []; this.easyTwoArr = [];
 		this.state = {pageKey, rotate:1, selCol, selSize, selEasyTwo, envMode:'light'}; this.mouseStatus = 'none';
 	}
 
@@ -36,7 +36,7 @@ export default class CanvasComponent extends React.Component {
 		// window.addEventListener('pointerdown', (e)=>{this.mouseStatus = 'down'; });
 		// window.addEventListener('pointermove', (e)=>{if (this.mouseStatus==='down' || this.mouseStatus==='drag') this.mouseStatus = 'drag'; });
 		// window.addEventListener('pointerup', (e)=>{this.mouseStatus = 'none'; });
-		window.addEventListener('keydown', (e)=>{
+		window.addEventListener('keydown', (e)=> {
 			if (!this.totalGroup) return;
 			else if (e.key==='ArrowLeft') this.totalGroup.rotation.y -= 0.015;
 			else if (e.key==='ArrowRight') this.totalGroup.rotation.y += 0.015;
@@ -62,19 +62,20 @@ export default class CanvasComponent extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		['pageKey', 'box', 'rear', 'selType', 'brake', 'selSize', 'selCol', 'selSubPart', 'selFront', 'selEasyTwo'].forEach(key => {
+		['pageKey', 'box', 'rear', 'selType', 'brake', 'selSize', 'selCol', 'selSubPart', 'selFront', 'selOption'].forEach(key => {
 			if (this.state[key] !== nextProps[key]) {
 				this.setState({[key]:nextProps[key]}, () => {
-					const {box, selSubPart, rear, brake, selFront, selEasyTwo} = this.state;
+					const {box, selSubPart, rear, brake, selFront, selOption} = this.state;
 					if (key==='selCol') this.setColor();
 					else if (key === 'selSubPart') this.setBottomMesh();
 					else if (key==='box') {this.boxArr.forEach(child => { child.visible = box });}
-					else if (key === 'rear' && this.rearGroup) {
+					else if (key === 'rear' && this.backBrake) {
 						if (selSubPart==='easyTwo') {
 							const ceilingW = rear?disM:0
-							this.setCeiling({width:ceilingW/disL * 0.01})
+							this.setCeiling({width:ceilingW/disL * 0.01});
 						}
-						this.rearGroup.visible = rear;
+						this.rearArr.forEach(child => { child.visible = rear;});
+						this.backBrake.visible = rear;
 					}
 					else if (key === 'brake' && this.brakeGroup) this.brakeGroup.visible = brake;
 					else if (key === 'selFront') {
@@ -85,12 +86,25 @@ export default class CanvasComponent extends React.Component {
 							if ((selFront==='xl' || selFront==='regular') && child.preVisible) child.visible = true;
 							else if (child.name==='frame_RAHMEN_Mini') child.visible = true;
 						});
-					} else if (key === 'selEasyTwo') {
-						this.easyTwoArr.forEach(child => { child.visible = child.name==='easyTwo_'+selEasyTwo }); // 
+					} else if (key === 'selOption') {
+						this.setOption();
 					}
 				});
 			}
 		});
+	}
+
+	setOption = () => {
+		const {selOption} = this.state;
+		switch (this.state.selOption) {
+			case 'basic':  case 'eppBox':  case 'passenger': this.boxArr.forEach(child => { child.visible = false; }); break;
+			case 'pickUp': this.boxArr.forEach(child => { child.visible = !child.name.includes('top'); }); break;
+			case 'cargo': this.boxArr.forEach(child => { child.visible = true; }); break;
+			default: break;
+		}
+		this.eppBox.visible = selOption==='eppBox';
+		this.passenger.visible = selOption==='passenger';
+		this.backBrake.visible = (selOption==='cargo' || selOption==='pickUp');
 	}
 
 	setCeiling = (info) => {
@@ -117,27 +131,20 @@ export default class CanvasComponent extends React.Component {
 			case 'spaceXl': 	selBottom = 'LWB'; dis = disL; ceilingW = disL;	pushR = 1.4; frameName+='SpaceXL'; break;
 			default: break;
 		}
-		this.modelObj.traverse(function (child) {
-			if (child.name.includes('PLATTFORM')) child.visible = child.name.includes(selBottom);
-			else if (child.name.includes('back')) {
-				if 		(child.name==='Rear_back') child.position.x = child.oriBackPos + dis;
-				else {
-					if (dis === 0) child.position.x = child.oriBackPos;
-					else child.position.x = child.oriBackPos + dis - 0.06;
-				}
-			}
-			else if (child.name==='rear_body') {child.scale.z = topLevel?(langSpaceH/langEasyH)*0.01:0.01;}
-		})
-		this.setCeiling({top:topH, width:ceilingW/disL * 0.01})
-		this.boxArr.forEach(child => {
-			if (child.name==='box_front_body') child.scale.z=topLevel?0.01: langEasyH/langSpaceH * 0.01;
+		this.bottomArr.forEach(child => { child.visible = child.name.includes(selBottom); });
+		this.backArr.forEach(child => {
+			if (child.name.includes('box') || child.name==='back_brake') child.position.x = child.oriBackPos + dis;
 			else {
-				child.scale.x = selBottom==='LWB'?0.01: disM/disL * 0.0102;
-				if (child.name==='box_side_top_body') child.scale.z = topLevel?0.01: (langEasyH - boxBottomH)/langSpaceH * 0.0101;
+				if (dis === 0) child.position.x = child.oriBackPos;
+				else child.position.x = child.oriBackPos + dis - 0.06;
 			}
 		});
-		// this.frontArr.forEach(child => { child.preVisible = child.name.includes('frontMain_'+frontName); if (selType==='premade') child.visible = child.name.includes('frontMain_'+frontName); });
-		this.frameArr.forEach(child => { child.preVisible = child.name===frameName;}); //  if (selType==='premade') child.visible = child.name===frameName; 
+		this.setCeiling({top:topH, width:ceilingW/disL * 0.01})
+		this.boxArr.forEach(child => {
+			if (child.name.includes('side')) child.scale.x = selBottom==='LWB'?0.01: disM/disL * 0.0102;
+			if (child.name.includes('top')) child.scale.z = topLevel?0.01: (langEasyH - boxBottomH)/langSpaceH * 0.0101;
+		});
+		this.frameArr.forEach(child => { child.preVisible = child.name===frameName;});
 		this.modelObj.position.x = modelH/-2 * pushR;
 		this.totalGroup.position.y = topLevel?modelH/-2:modelH/-3;
 	}
@@ -204,18 +211,21 @@ export default class CanvasComponent extends React.Component {
 		const bodyMat = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, envMap:envMap0, reflectivity:0, roughness:0, metalness:0 })
 		new FBXLoader().load( modelCar, (object) => {
 			object.traverse(child => {
-				if (child.name.includes('back')) {child.oriBackPos = Math.round(child.position.x * 1000)/1000;}
+				if (child.name.includes('body')) { child.material = bodyMat; this.bodyMeshArr.push(child); }
+				if (child.name.includes('PLATTFORM')) this.bottomArr.push(child);
+				if (child.name.includes('back')) {child.oriBackPos = Math.round(child.position.x * 1000)/1000; this.backArr.push(child);}
+				if (child.name.includes('box')) this.boxArr.push(child);
+				if (child.name.includes('box_back')) this.rearArr.push(child);
 				if (child.name.includes('ceiling')) this.ceilingArr.push(child);
-				if (child.name === 'Rear_back') this.rearGroup = child;
+				// if (child.name === 'Rear_back') this.rearGroup = child;
 				else if (child.name === 'Brake') this.brakeGroup = child;
-				else if (child.name.includes('box')) this.boxArr.push(child);
 				else if (child.name.includes('Wheel')) this.wheelArr.push(child);
-				else if (child.name.includes('easyTwo')) this.easyTwoArr.push(child);
 				else if (child.name.includes('frontMain')) this.frontArr.push(child);
 				else if (child.name.includes('frame_RAHMEN')) this.frameArr.push(child);
-
-				if (child.name.includes('body')) { child.material = bodyMat; this.bodyMeshArr.push(child); }
-				else if (child.name === 'FRONT_BLACK')
+				else if (child.name==='easyTwo_eppBox') this.eppBox = child;
+				else if (child.name==='easyTwo_passenger') this.passenger = child;
+				else if (child.name==='back_brake') this.backBrake = child;
+				if (child.name === 'FRONT_BLACK')
 					child.material = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, color:0x000000, envMap:envMap0, reflectivity:1});
 					// child.material = new THREE.MeshStandardMaterial({envMap:envMap0, reflectivity:0.9, color:0x151515, metalness:0.4, roughness:0.6});
 				else if (child.name.includes('glass')) {
@@ -224,7 +234,7 @@ export default class CanvasComponent extends React.Component {
 					child.oriCol = child.material.color.getHex();
 					this.lightMeshArr.push(child);
 					// child.material = new THREE.MeshBasicMaterial({color:colVal});
-				} else if (child.name==='ceiling_back_body') this.frontBackMesh = child;
+				}
 				if (child instanceof THREE.Mesh) {
 					child.material.side = 2;
 					child.castShadow = true;

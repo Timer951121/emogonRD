@@ -29,7 +29,7 @@ function getWSize(wWidth, wHeight) {
 export default class MainComponent extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selCol:colArr[0].hex, frontArr:[], selFront:'', selEasyTwo:''};
+		this.state = {loading:false, pageKey:'start', wSize:getWSize(window.innerWidth, window.innerHeight), rear:false, brake:false, selCol:colArr[0].hex, frontArr:[], selFront:''};
 	}
 
 	componentDidMount() {
@@ -44,7 +44,7 @@ export default class MainComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, loading, portrait, selType, wSize, rear, box, brake, selCol, selPart, selSubPart, frontArr, selFront, selEasyTwo} = this.state;
+		const {pageKey, loading, portrait, selType, wSize, rear, brake, selCol, selPart, selSubPart, frontArr, selFront, selOption} = this.state;
 		return (
 			<div className={`page-wrapper ${device?'mobile':'web'} ${device} ${pageKey}-page`}>
 				<StartComponent
@@ -54,16 +54,15 @@ export default class MainComponent extends React.Component {
 				<PurposeComponent
 					pageKey={pageKey}
 					callCanvasPage={(selPart, selSubPart)=>{
-						this.setState({pageKey:'canvas', selPart, selSubPart, selEasyTwo:''}, () => {
+						this.setState({pageKey:'canvas', selPart, selSubPart, selOption:''}, () => {
 							const frontType = selSubPart.includes('space')?'xl':'regular';
 							var box = selSubPart.includes('easy')?false:true;
-							var preSelFront = 'mini';
-							if (selType==='custom') { box = false; }
-							else { preSelFront = frontType; }
-							this.setState({rear:box, box,
+							const preSelFront = (selType==='custom' && frontType==='regular')?'mini':frontType;
+							const selOption = (selType==='premade' && box)?'cargo' : 'basic';
+							this.setState({rear:box,
 								selFront:preSelFront,
 								frontArr:frontType==='xl'?['xl']:['mini', 'small', 'regular'],
-								selEasyTwo: 'basic'
+								selOption
 							});
 						})
 					}}
@@ -76,9 +75,8 @@ export default class MainComponent extends React.Component {
 					selPart={selPart}
 					selSubPart={selSubPart}
 					selCol={selCol}
-					selEasyTwo={selEasyTwo}
+					selOption={selOption}
 					selFront={selFront}
-					box={box}
 					rear={rear}
 					brake={brake}
 					setPage={(pageKey)=>this.setState({pageKey})}
@@ -86,14 +84,13 @@ export default class MainComponent extends React.Component {
 				></CanvasComponent>
 				<SideComponent
 					pageKey={pageKey}
-					box={box}
 					rear={rear}
 					brake={brake}
 					selCol={selCol}
 					selType={selType}
 					selFront={selFront}
 					frontArr={frontArr}
-					selEasyTwo={selEasyTwo}
+					selOption={selOption}
 					selSubPart={selSubPart}
 					setRear={rear=>this.setState({rear}, () => {
 						if (rear) this.setState({selFront:selSubPart.includes('space')?'xl':'regular'})
@@ -101,9 +98,19 @@ export default class MainComponent extends React.Component {
 					setBrake={brake=>this.setState({brake})}
 					setSelCol={selCol=>this.setState({selCol})}
 					setSelFront={selFront=>this.setState({selFront}, () => {
-						if (selFront === 'mini' || selFront === 'small') this.setState({rear:false})
+						if (selFront === 'mini' || selFront === 'small') {
+							this.setState({rear:false})
+							if (selOption==='cargo') this.setState({selOption:'basic'})
+						}
 					})}
-					setSelEasyTwo={selEasyTwo=>this.setState({selEasyTwo})}
+					setSelOption={selOption=>this.setState({selOption}, () => {
+						if (selOption!=='passenger' && selOption!=='pickUp') this.setState({rear:false});
+						if (selOption==='cargo') {
+							this.setState({rear:true});
+							if (selSubPart.includes('space')) this.setState({selFront:'xl'});
+							else this.setState({selFront:'regular'});
+						}
+					})}
 				></SideComponent>
 				<LoadingComponent
 					loading={loading}

@@ -5,28 +5,32 @@ import { sizeArr, colArr, easyTwoArr } from '../data/info';
 export default class SideComponent extends React.Component {
 	constructor(props) {
 		super(props);
-		const {pageKey, rear, brake, selFront, selCol, frontArr, selType, selSubPart, selEasyTwo} = props;
-		this.state = {pageKey, side:false, selFront, selCol, rear, brake, frontArr, selType, selSubPart};
+		const {pageKey, rear, brake, selFront, selCol, frontArr, selType, selSubPart} = props;
+		this.state = {pageKey, side:false, selFront, selCol, rear, brake, frontArr, selType, selSubPart, optionArr:[]};
 	}
 
 	componentDidMount() {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		['pageKey', 'selFront', 'selCol', 'rear', 'brake', 'frontArr', 'selType', 'selSubPart', 'selEasyTwo'].forEach(key => {
+		['pageKey', 'selFront', 'selCol', 'rear', 'brake', 'frontArr', 'selType', 'selSubPart', 'selOption'].forEach(key => {
 			if (key==='pageKey' && this.state.pageKey !== 'canvas' && nextProps.pageKey==='canvas') {
 				setTimeout(() => { this.setState({side:true}) }, 500);
 				setTimeout(() => { this.setState({side:false}) }, 2000);
 			}
 			if (this.state[key] !== nextProps[key]) {
 				this.setState({[key]:nextProps[key]}, () => {
+					if (key==='selSubPart') {
+						const optionArr = easyTwoArr.filter(item=>{return item.inArr.includes(this.state.selSubPart)});
+						this.setState({optionArr})
+					}
 				});
 			}
 		});
 	}
 
 	render() {
-		const {pageKey, side, selFront, selCol, rear, brake, frontArr, selType, selSubPart, selEasyTwo} = this.state;
+		const {pageKey, side, selFront, selCol, rear, brake, frontArr, selType, selSubPart, selOption, optionArr} = this.state;
 		return (
 			<div className={`side ${side?'open':''}`}>
 				<div className='side-wrapper scroll scroll-y'>
@@ -50,21 +54,19 @@ export default class SideComponent extends React.Component {
 							) }
 						</div>
 					</div>
-					{selSubPart==='easyTwo' && // selType==='custom' && 
+					{optionArr.length > 0 &&
 						<div className='part easyTwo-part'>
 							<div className='title'>Choose your option</div>
 							<div className='part-content flex'>
-								{easyTwoArr.map((item, idx) =>
-									<div className={`button ${selEasyTwo===item.key?'active':''}`} onClick={() => {
-										this.props.setSelEasyTwo(item.key);
-										if (item.key!=='passenger') this.props.setRear(false);
+								{optionArr.map((item, idx) =>
+									<div className={`button ${selOption===item.key?'active':''}`} onClick={() => {
+										this.props.setSelOption(item.key);
 									}} key={idx}>{item.label}</div>
 								) }
 							</div>
 						</div>
 					}
-					<div className={`part switch-part rear-part ${selSubPart==='easyTwo' && (selEasyTwo !== 'passenger' && selEasyTwo !== 'basic')?'hide':''}`}>
-						{/*  */}
+					<div className={`part switch-part rear-part ${(selOption !== 'passenger' && selOption !== 'basic')?'hide':''}`}>
 						<div className='title'>Do you want a rear panel?</div>
 						<div className='part-content flex'>
 							<div className={`button ${rear?'active':''}`} onClick={() => { this.props.setRear(!rear); }}>Yes</div>
