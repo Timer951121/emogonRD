@@ -6,6 +6,9 @@ import CanvasComponent from './Canvas';
 import SideComponent from './Side';
 import LoadingComponent from './Loading';
 import { sizeArr, colArr } from '../data/info';
+import imgIconMoon from '../assets/images/icon_moon.png';
+import imgIconBack from '../assets/images/icon_arrow.png';
+import imgIconLight from '../assets/images/icon_light.png';
 
 import '../assets/css/index.css';
 
@@ -54,14 +57,16 @@ export default class MainComponent extends React.Component {
 				<PurposeComponent
 					pageKey={pageKey}
 					callCanvasPage={(selPart, selSubPart)=>{
-						this.setState({pageKey:'canvas', selPart, selSubPart, selOption:''}, () => {
-							const frontType = selSubPart.includes('space')?'xl':'regular';
-							var box = selSubPart.includes('easy')?false:true;
-							const preSelFront = (selType==='custom' && frontType==='regular')?'mini':frontType;
+						const frontType = selSubPart.includes('space')?'xl':'regular';
+						const preSelFront = (selType==='custom' && frontType==='regular')?'mini':frontType;
+						this.setState({pageKey:'canvas', selPart, selSubPart, selOption:'', selFront:preSelFront}, () => {
+							var box = selSubPart.includes('easy')?false:true, frontArr = ['mini', 'small', 'regular'];
+							if (selSubPart==='space' || selSubPart==='spaceXl') frontArr = ['xl'];
+							else if (selSubPart==='carGolion') frontArr = ['mini', 'small', 'regular'];
 							const selOption = (selType==='premade' && box)?'cargo' : 'basic';
-							this.setState({rear:box,
-								selFront:preSelFront,
-								frontArr:frontType==='xl'?['xl']:['mini', 'small', 'regular'],
+							this.setState({rear:false,
+								// selFront:preSelFront,
+								frontArr,
 								selOption
 							});
 						})
@@ -104,14 +109,21 @@ export default class MainComponent extends React.Component {
 						}
 					})}
 					setSelOption={selOption=>this.setState({selOption}, () => {
-						if (selOption!=='passenger' && selOption!=='pickUp') this.setState({rear:false});
 						if (selOption==='cargo') {
-							this.setState({rear:true});
 							if (selSubPart.includes('space')) this.setState({selFront:'xl'});
 							else this.setState({selFront:'regular'});
+						} else {
+							// this.setState({rear:false})
 						}
 					})}
 				></SideComponent>
+				{pageKey !== 'start' &&
+					<div className='set-item set-back' onClick={()=>{
+							this.setState({pageKey:pageKey==='canvas'?'purpose':'start'})
+						} }>
+						<div className='circle'><img src={imgIconBack}></img></div>
+					</div>
+				}
 				<LoadingComponent
 					loading={loading}
 					// loadPro={loadPro}

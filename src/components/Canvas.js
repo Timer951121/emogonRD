@@ -4,9 +4,12 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
-import Stats from 'three/examples/jsm/libs/stats.module';
+// import Stats from 'three/examples/jsm/libs/stats.module';
 import modelCar from '../assets/model/test.fbx';
 import { modelH } from '../data/info';
+
+import imgIconMoon from '../assets/images/icon_moon.png';
+import imgIconLight from '../assets/images/icon_light.png';
 
 import imgEnvPX from '../assets/images/px.png';
 import imgEnvPY from '../assets/images/py.png';
@@ -17,8 +20,8 @@ import imgEnvNZ from '../assets/images/nz.png';
 
 const imgEnv0Arr = [imgEnvPX, imgEnvNX, imgEnvPY, imgEnvNY, imgEnvPZ, imgEnvNZ];
 const disM = 2.12 - 1.41, disL = 2.42 - 1.41, bottomY=0.231, langEasyY = 1.583, langSpaceY = 2.033, langEasyH = langEasyY - bottomY, langSpaceH = langSpaceY - bottomY, boxBottomH = 0.3;
-const stats = Stats();
-document.body.appendChild(stats.dom)
+// const stats = Stats();
+// document.body.appendChild(stats.dom)
 
 export default class CanvasComponent extends React.Component {
 	constructor(props) {
@@ -70,27 +73,30 @@ export default class CanvasComponent extends React.Component {
 					else if (key === 'selSubPart') this.setBottomMesh();
 					else if (key==='box') {this.boxArr.forEach(child => { child.visible = box });}
 					else if (key === 'rear' && this.backBrake) {
-						if (selSubPart==='easyTwo') {
-							const ceilingW = rear?disM:0
-							this.setCeiling({width:ceilingW/disL * 0.01});
-						}
 						this.rearArr.forEach(child => { child.visible = rear;});
 						this.backBrake.visible = rear;
+						this.setCeiling();
 					}
 					else if (key === 'brake' && this.brakeGroup) this.brakeGroup.visible = brake;
 					else if (key === 'selFront') {
 						this.frontArr.forEach(child => { child.visible = child.name.includes('frontMain_'+selFront) });
-						this.setCeiling({show:(selFront === 'regular' || selFront === 'xl')})
-						this.frameArr.forEach(child => { 
-							child.visible = false;
-							if ((selFront==='xl' || selFront==='regular') && child.preVisible) child.visible = true;
-							else if (child.name==='frame_RAHMEN_Mini') child.visible = true;
-						});
+						this.setCeiling({show:(selFront === 'regular' || selFront === 'xl')});
+						this.setSelFrame();
 					} else if (key === 'selOption') {
 						this.setOption();
+						this.setCeiling();
 					}
 				});
 			}
+		});
+	}
+
+	setSelFrame = () => {
+		const {selFront} = this.state;
+		this.frameArr.forEach(child => { 
+			child.visible = false;
+			if ((selFront==='xl' || selFront==='regular') && child.preVisible) child.visible = true;
+			else if (child.name==='frame_RAHMEN_Mini') child.visible = true;
 		});
 	}
 
@@ -105,30 +111,36 @@ export default class CanvasComponent extends React.Component {
 		this.eppBox.visible = selOption==='eppBox';
 		this.passenger.visible = selOption==='passenger';
 		this.backBrake.visible = (selOption==='cargo' || selOption==='pickUp');
+		this.framePickUp.visible = selOption==='pickUp';
+		// this.frameArr.forEach(child => { child.visible = child.preVisible && selOption==='cargo'; });
 	}
 
 	setCeiling = (info) => {
+		const {selSubPart, selOption, rear} = this.state;
+		var ceilingW = 0;
+		if (selSubPart==='easyTwo' || selSubPart==='carGolion' || selSubPart==='space') ceilingW = disM;
+		else if (selSubPart === 'spaceXl') ceilingW = disL;
+		const oriW = (selOption ==='cargo' || rear)?ceilingW:0, realW = oriW/disL * 0.01;
 		this.ceilingArr.forEach(child => {
+			if (child.name === 'ceiling_back_body') child.position.x = child.oriBackPos + realW * 100;
+			else if (child.name === 'ceiling_body') child.scale.x = realW;
+			if (!info) return;
 			if (info.top) child.position.y = info.top;
-			if (info.width !== undefined) {
-				if (child.name === 'ceiling_back_body') child.position.x = child.oriBackPos + info.width * 100;
-				else if (child.name === 'ceiling_body') child.scale.x = info.width;
-			}
 			if (info.show !== undefined) child.visible = info.show;
-		}); // child.position.x = selBottom==='LWB'?1.2:1.23;
+		});
 	}
 
 	setBottomMesh = () => {
 		const {selType, selSubPart} = this.state;
 		// hor-pos 1.41, 2.12, 2.42 // ver-pos 0.231 1.583, 2.033
 		const topLevel = selSubPart.includes('space')?true:false, topH = topLevel?langSpaceY:langEasyY;
-		var selBottom = '', dis = 0, ceilingW = 0, pushR = 1, frameName = 'frame_RAHMEN_';
+		var selBottom = '', dis = 0, pushR = 1, frameName = 'frame_RAHMEN_';
 		switch (selSubPart) {
-			case 'easyOne': 	selBottom = 'SWB'; dis = 0;    ceilingW = 0;	pushR = 1;	 frameName+='EasyOne'; break;
-			case 'easyTwo': 	selBottom = 'MWB'; dis = disM; ceilingW = 0;	pushR = 1.2; frameName+='EasyOne'; break;
-			case 'carGolion': 	selBottom = 'MWB'; dis = disM; ceilingW = disM;	pushR = 1.2; frameName+='EasyTwo'; break;
-			case 'space': 		selBottom = 'MWB'; dis = disM; ceilingW = disM;	pushR = 1.2; frameName+='Space';   break;
-			case 'spaceXl': 	selBottom = 'LWB'; dis = disL; ceilingW = disL;	pushR = 1.4; frameName+='SpaceXL'; break;
+			case 'easyOne': 	selBottom = 'SWB'; dis = 0;   	pushR = 1;	 frameName+='EasyOne'; break;
+			case 'easyTwo': 	selBottom = 'MWB'; dis = disM;	pushR = 1.2; frameName+='EasyOne'; break;
+			case 'carGolion': 	selBottom = 'MWB'; dis = disM;	pushR = 1.2; frameName+='EasyOne'; break; // EasyTwo
+			case 'space': 		selBottom = 'MWB'; dis = disM;	pushR = 1.2; frameName+='Space';   break;
+			case 'spaceXl': 	selBottom = 'LWB'; dis = disL;	pushR = 1.4; frameName+='Space';   break; // XL
 			default: break;
 		}
 		this.bottomArr.forEach(child => { child.visible = child.name.includes(selBottom); });
@@ -139,14 +151,15 @@ export default class CanvasComponent extends React.Component {
 				else child.position.x = child.oriBackPos + dis - 0.06;
 			}
 		});
-		this.setCeiling({top:topH, width:ceilingW/disL * 0.01})
+		this.setCeiling({top:topH});
 		this.boxArr.forEach(child => {
 			if (child.name.includes('side')) child.scale.x = selBottom==='LWB'?0.01: disM/disL * 0.0102;
 			if (child.name.includes('top')) child.scale.z = topLevel?0.01: (langEasyH - boxBottomH)/langSpaceH * 0.0101;
 		});
+		this.framePickUp.scale.x = selBottom==='MWB'?0.01: disL/disM * 0.01;
 		this.frameArr.forEach(child => { child.preVisible = child.name===frameName;});
-		this.modelObj.position.x = modelH/-2 * pushR;
-		this.totalGroup.position.y = topLevel?modelH/-2:modelH/-3;
+		this.modelObj.position.x = modelH/-2.5 * pushR;
+		this.totalGroup.position.y = topLevel?modelH/-2.5:modelH/-3;
 	}
 
 	setEnvMode = () => {
@@ -173,7 +186,8 @@ export default class CanvasComponent extends React.Component {
 
 		this.scene = new THREE.Scene();
 		this.camera = new THREE.PerspectiveCamera(40, this.props.wSize.width / this.props.wSize.height, 0.01, 100);
-		this.camera.position.set(-8, 2.5, 6);
+		// this.camera.position.set(-8, 2.5, 6);
+		this.camera.position.set(-6.4, 2, 4.8);
 		
 		this.totalGroup = new THREE.Group(); this.scene.add(this.totalGroup);
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -225,6 +239,7 @@ export default class CanvasComponent extends React.Component {
 				else if (child.name==='easyTwo_eppBox') this.eppBox = child;
 				else if (child.name==='easyTwo_passenger') this.passenger = child;
 				else if (child.name==='back_brake') this.backBrake = child;
+				else if (child.name==='frame_pickUp') this.framePickUp = child;
 				if (child.name === 'FRONT_BLACK')
 					child.material = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, color:0x000000, envMap:envMap0, reflectivity:1});
 					// child.material = new THREE.MeshStandardMaterial({envMap:envMap0, reflectivity:0.9, color:0x151515, metalness:0.4, roughness:0.6});
@@ -277,7 +292,7 @@ export default class CanvasComponent extends React.Component {
 		requestAnimationFrame(this.animate);
 		this.rotateWheel();
 		this.rendering();
-		stats.update();
+		// stats.update();
 		// if (this.mouseStatus === 'drag' || this.mouseStatus==='zoom') this.rendering();
 		// const camPos = this.camera.position;
 		// this.shadowLight.position.set(camPos.x, camPos.y, camPos.z);
@@ -295,12 +310,11 @@ export default class CanvasComponent extends React.Component {
 		return (
 			<div className={`back-board canvas ${pageKey==='canvas'?'active':''}`}>
 				<div id='container'></div>
-				<div className='setting-wrapper'>
-					<div className='set-item button' onClick={()=> this.setState({rotate:rotate===1?0:1}) }>{rotate?'Stop':'Rotate'}</div>
-					<div className='set-item button' onClick={this.setEnvMode }>{envMode==='light'?'Dark':'Light'}</div>
-					{this.props.testMode &&
-						<div className='set-item button' onClick={()=>this.props.setPage('purpose') }>Back</div>
-					}
+				<div className='set-item set-rotate' onClick={()=> this.setState({rotate:rotate===1?0:1}) }>
+					<div className='circle'></div>
+				</div>
+				<div className='set-item set-light' onClick={this.setEnvMode }>
+					<div className='circle'><img src={envMode==='light'?imgIconLight:imgIconMoon}></img></div>
 				</div>
 			</div>
 		);

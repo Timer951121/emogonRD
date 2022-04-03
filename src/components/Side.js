@@ -1,27 +1,24 @@
 import React from 'react';
-import imgArrow from '../assets/images/arrow.png';
+import imgChevron from '../assets/images/chevron.png';
 import { sizeArr, colArr, easyTwoArr } from '../data/info';
 
 export default class SideComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		const {pageKey, rear, brake, selFront, selCol, frontArr, selType, selSubPart} = props;
-		this.state = {pageKey, side:false, selFront, selCol, rear, brake, frontArr, selType, selSubPart, optionArr:[]};
+		this.state = {pageKey, selFront, selCol, rear, brake, frontArr, selType, selSubPart, optionArr:[], openColor:true, openFront:true, openOption:true, openRear:true, openBrake:true};
 	}
 
 	componentDidMount() {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		['pageKey', 'selFront', 'selCol', 'rear', 'brake', 'frontArr', 'selType', 'selSubPart', 'selOption'].forEach(key => {
-			if (key==='pageKey' && this.state.pageKey !== 'canvas' && nextProps.pageKey==='canvas') {
-				setTimeout(() => { this.setState({side:true}) }, 500);
-				setTimeout(() => { this.setState({side:false}) }, 2000);
-			}
+		['selFront', 'selCol', 'rear', 'brake', 'frontArr', 'selSubPart', 'selOption'].forEach(key => {
 			if (this.state[key] !== nextProps[key]) {
 				this.setState({[key]:nextProps[key]}, () => {
 					if (key==='selSubPart') {
 						const optionArr = easyTwoArr.filter(item=>{return item.inArr.includes(this.state.selSubPart)});
+						console.log(optionArr)
 						this.setState({optionArr})
 					}
 				});
@@ -30,66 +27,90 @@ export default class SideComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, side, selFront, selCol, rear, brake, frontArr, selType, selSubPart, selOption, optionArr} = this.state;
+		const { selFront, selCol, rear, brake, frontArr, selOption, optionArr, openColor, openFront, openOption, openRear, openBrake} = this.state;
 		return (
-			<div className={`side ${side?'open':''}`}>
+			<div className={`side`}>
+				<div className='side-outer side-header'>
+					<div className='outer-line header-top'><label>EMOGON</label><label className='right'>1ST EDITION</label></div>
+					<div className='outer-line'>EASY TWO</div>
+				</div>
 				<div className='side-wrapper scroll scroll-y'>
-					{/* <img className='arrow' src={imgArrow} onClick={()=>this.setState({side:!side})}></img> */}
-					<div className='part color-part'>
-						<div className='title'>Choice color</div>
-						<div className='part-content flex'>
-							{colArr.map((item, idx) =>
-								<img className={`color-img ${selCol===item.hex?'active':''}`} src={item.img} onClick={()=>this.props.setSelCol(item.hex)} key={idx}></img>
-							) }
+					<div className={`part color-part ${openColor?'open':''}`}>
+						<div className='title' onClick={()=>this.setState({openColor:!openColor})}><img src={imgChevron}></img> COLOR</div>
+						<div className='part-content'>
+							<div className='color-wrapper flex'>
+								{colArr.map((item, idx) =>
+									<div className={`color-item ${item.hex===selCol?'active':''}`} style={{backgroundImage:'linear-gradient('+item.backCol+')'}} onClick={()=>this.props.setSelCol(item.hex)} key={idx}></div>
+								) }
+							</div>
+							<div className='price-line'><label>ELECTRIC BLUE</label> <label className='right'>259.99 EUR</label></div>
 						</div>
 					</div>
-					<div className='part size-part'>
-						<div className='title'>What windshield do you wish?</div>
-						<div className='part-content flex'>
+					<div className={`part front-part ${openFront?'open':''}`}>
+						<div className='title' onClick={()=>this.setState({openFront:!openFront})}><img src={imgChevron}></img> WINDSHIELD</div>
+						<div className='part-content'>
 							{sizeArr.map((item, idx) =>
-								<div className={`button ${frontArr.includes(item.key)?'':'disable'} ${selFront===item.key?'active':''}`} onClick={() => {
+								<div className={`option-item ${frontArr.includes(item.key)?'':'disable'} ${selFront===item.key?'active':''}`} onClick={() => {
 									if (!frontArr.includes(item.key)) return;
 									this.props.setSelFront(item.key);
-								}} key={idx}>{item.label}</div>
+								}} key={idx}>
+									<div className='option-img'></div>
+									<div className='option-label'>
+										{item.label}
+									</div>
+								</div>
 							) }
+							<div className='price-line'><label className='right'>259.99 EUR</label></div>
 						</div>
 					</div>
 					{optionArr.length > 0 &&
-						<div className='part easyTwo-part'>
-							<div className='title'>Choose your option</div>
-							<div className='part-content flex'>
+						<div className={`part option-part ${openOption?'open':''}`}>
+							<div className='title' onClick={()=>this.setState({openOption:!openOption})}><img src={imgChevron}></img> YOUR OPTION</div>
+							<div className='part-content'>
 								{optionArr.map((item, idx) =>
-									<div className={`button ${selOption===item.key?'active':''}`} onClick={() => {
+									<div className={`option-item ${selOption===item.key?'active':''}`} onClick={() => {
+										this.props.setRear(false);
 										this.props.setSelOption(item.key);
-									}} key={idx}>{item.label}</div>
+									}} key={idx}>
+										<div className='option-img'></div>
+										<div className='option-label'>
+											{item.label}
+										</div>
+									</div>
 								) }
+								<div className='price-line'><label className='right'>259.99 EUR</label></div>
 							</div>
 						</div>
 					}
-					<div className={`part switch-part rear-part ${(selOption !== 'passenger' && selOption !== 'basic')?'hide':''}`}>
-						<div className='title'>Do you want a rear panel?</div>
-						<div className='part-content flex'>
-							<div className={`button ${rear?'active':''}`} onClick={() => { this.props.setRear(!rear); }}>Yes</div>
-							{/* <label onClick={()=>this.props.setRear(false)}>No</label>
-							<div className={`switch-wrapper ${rear?'push':''} flex`} onClick={()=>this.props.setRear(!rear)}>
-								<div className={`switch-inner `}></div>
+					<div className={`part rear-part ${(selOption !== 'passenger' && selOption !== 'basic')?'hide':''} ${openRear?'open':''}`}>
+						<div className='title' onClick={()=>this.setState({openRear:!openRear})}><img src={imgChevron}></img> REAR PANEL</div>
+						<div className='part-content'>
+							<div className={`option-item ${rear?'active':''}`} onClick={() => { this.props.setRear(!rear); }}>
+								<div className='option-img'></div>
+								<div className='option-label'>
+									Yes
+								</div>
 							</div>
-							<label onClick={()=>this.props.setRear(true)}>Yes</label> */}
+							<div className='price-line'><label className='right'>259.99 EUR</label></div>
 						</div>
 					</div>
-					<div className='part switch-part'>
-						<div className='title'>Do you want a brake light?</div>
-						<div className='part-content flex'>
-							<div className={`button ${brake?'active':''}`} onClick={() => { this.props.setBrake(!brake); }}>Yes</div>
-							{/* <label onClick={()=>this.props.setBrake(false)}>No</label>
-							<div className={`switch-wrapper ${brake?'push':''} flex`} onClick={()=>this.props.setBrake(!brake)}>
-								<div className={`switch-inner`}></div>
+					<div className={`part brake-part ${openBrake?'open':''}`}>
+						<div className='title' onClick={()=>this.setState({openBrake:!openBrake})}><img src={imgChevron}></img> BRAKE LIGHT</div>
+						<div className='part-content'>
+							<div className={`option-item ${brake?'active':''}`} onClick={() => { this.props.setBrake(!brake); }}>
+								<div className='option-img'></div>
+								<div className='option-label'>
+									Yes
+								</div>
 							</div>
-							<label onClick={()=>this.props.setBrake(true)}>Yes</label> */}
+							<div className='price-line'><label className='right'>259.99 EUR</label></div>
 						</div>
 					</div>
-
-
+				</div>
+				<div className='side-outer side-footer'>
+					<div className='outer-line'>
+						<label>Add to Cart +</label> <label className='right'>5,499.99 EUR</label>
+					</div>
 				</div>
 			</div>
 		);

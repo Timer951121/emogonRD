@@ -1,32 +1,49 @@
 
-.side {position: absolute; top: 0; width: 500px; right: 0px; height: 100vh; background-color: white; border-left: 1px solid #108CCA; transition: all 0.5s;}
+.side {position: absolute; top: 20px; width: 500px; right: 10px; height: calc(100vh - 40px) ; border-radius: 25px; box-shadow: 0px 0px 10px 5px rgb(0 0 0 / 30%); transition: all 0.5s;}
 .canvas-page .side {z-index: 1;}
 .side * {font-size: 24px;}
 .side.open {right: 0px;}
-.side-wrapper {position: relative; width: calc(100% - 40px); height: calc(100% - 110px); padding: 30px 20px; padding-top: 50px;}
+
+.side-outer {background-color: #108CCA;  padding: 20px;}
+.side-header { height: 60px; border-top-left-radius: 25px; border-top-right-radius: 25px;}
+.side-footer {height: 30px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;}
+.side-outer .outer-line {display: flex;}
+.side-outer .right {flex: 1; text-align: right;}
+.side-outer * {color: white;}
+.side-header .header-top label {font-family: mainThin;}
+
+.side-wrapper {position: relative; background-color: white; width: calc(100% - 5px); height: calc(100% - 190px); margin: 10px 0px;}
 .side .arrow {position: absolute; top: 10px; left: -60px; cursor: pointer; transform: rotate(180deg); transition: all 0.3s;}
 .side.open .arrow {left: 0px; transform: rotate(0deg);}
 
+.side .part .title {font-size: 24px; font-weight: 700; padding: 10px 30px; cursor: pointer; border-top: 1px solid #BBBBBB; border-bottom: 1px solid #BBBBBB;}
+.side .part .title img {width: 10px; margin-right: 10px; transition: all 0.5s;}
+.side .part.open .title img {transform: rotate(90deg);}
 
+.side .part .part-content {max-height: 0px; transition: all 0.5s; overflow-y: hidden; overflow-x: hidden;}
+.side .part.color-part.open .part-content {max-height: 120px;}
+.side .part.front-part.open .part-content {max-height: 445px;}
+.side .part.option-part.open .part-content {max-height: 445px;}
+.side .part.rear-part.open .part-content {max-height: 140px;}
+.side .part.brake-part.open .part-content {max-height: 140px;}
 
-.side .part {margin-top: 30px;}
-.side .part .title {color: #108CCA; font-size: 24px; font-weight: 700;}
-.side .part .part-content {margin-top: 20px;}
+.side .part .part-content .option-item {height: 100px; display: flex; border-bottom: 1px solid grey; cursor: pointer;}
+.side .part .part-content .option-item.disable {opacity: 0.5; cursor: default;}
+.side .part .part-content .option-item .option-img {height: 100%; width: 180px; background-color: #DDD; margin-right: 10px;}
+.side .part .part-content .price-line {display: flex; padding: 5px 20px;}
+.side .part .part-content .price-line label {font-size: 16px;}
+.side .part .part-content .price-line .right {flex: 1; text-align: right;}
+
+/* background-image: linear-gradient(#0077C8 , #1428A0); */
+
+.side .part.color-part .color-wrapper { height: 70px; width: calc(100% + 40px); margin-left: -20px; margin-top: 10px;}
+.side .part.color-part .color-wrapper .color-item { height: 100%; flex: 1; transform: skewX(-20deg) scale(1); cursor: pointer; transition: all 0.3s;}
+.side .part.color-part .color-wrapper .color-item:hover{ transform: skewX(-20deg) scale(1.2);} /* z-index: 1; */
+.side .part.color-part .color-wrapper .color-item.active{ border-top: 2px solid red; border-bottom: 2px solid red;}
+
 .side .part .part-content .button {flex-direction: column; background-color: white; color: #108CCA; margin: 10px; border: 2px solid #108CCA; width: 180px; padding: 12px;}
 .side .part .part-content .button:hover {background-color: #DDDDDD;}
 .side .part .part-content .button.active {background-color: #108CCA; color: white;}
 .side .part .part-content .button.disable:hover {background-color: #FFFFFF; color: #108CCA;}
-
-.side .part.color-part .part-content .color-img {width: 50px; height: 50px; margin: auto; border: 3px solid white; cursor: pointer; border-radius: 50%; padding: 6px;}
-.side .part.color-part .part-content .color-img.active {border-color: #3E6AE1;}
-
-.side .part.size-part .part-content {flex-direction: column;}
-.side .part.easyTwo-part .part-content {flex-direction: column;}
-
-.side .part.switch-part .part-content label {font-weight: 700; color: #108CCA; cursor: pointer;}
-.side .part.switch-part .part-content .switch-wrapper { width: 100px; height: 40px; background-color: #888888; border-radius: 20px; margin: 0px 20px; cursor: pointer; transition: all 0.3s;}
-.side .part.switch-part .part-content .switch-wrapper.push { background-color: #108CCA;}
-.side .part.switch-part .part-content .switch-wrapper .switch-inner {width: 32px; height: 32px; margin-right: 58px; transition: all 0.3s; background-color: white;  border-radius: 50%;}
-.side .part.switch-part .part-content .switch-wrapper.push .switch-inner {margin-right: -58px; }
 
 .side .part.rear-part.hide {display: none;}

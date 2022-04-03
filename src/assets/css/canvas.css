@@ -3,8 +3,12 @@
 .android .canvas { height: calc(100vh - 55px); }
 .ios .canvas { height: calc(100vh - 5px); }
 
-.setting-wrapper {position: absolute; z-index: 1; top: 20px; left: 20px; padding: 20px; background-color: rgba(255, 255, 255, 0.7);}
-.setting-wrapper .set-item {border: 2px solid rgba(255, 255, 255, 0); width: 150px; padding: 5px 10px; cursor: pointer; margin: 8px 0px;}
+.set-item {position: absolute; z-index: 1; left: 20px; cursor: pointer; width: 70px; height: 70px; border-radius: 50%; box-shadow: 0px 0px 10px 5px rgb(0 0 0 / 20%); display: flex; justify-content: center; align-items: center;}
+.set-item .circle {width: 50px; height: 50px; border-radius: 50%; border: 5px solid #108CCA; display: flex; align-items: center; justify-content: center;}
+.set-item .circle img {max-width: 30px; max-height: 30px;}
+.set-item.set-back {top: 50px;}
+.set-item.set-rotate {bottom: 150px;}
+.set-item.set-light {bottom: 50px;}
 /* .setting-wrapper .set-item .set-color {width: 50px; height: 35px; margin-right: 10px; cursor: pointer;border: 1px solid; transition:  all 0.2s;}
 .setting-wrapper .set-item .set-label {flex: 1; cursor: pointer; font-size: 22px; font-weight: 700;}
 .setting-wrapper .set-item:hover .set-color {transform: scale(1.1);}
