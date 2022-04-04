@@ -28,8 +28,13 @@
 .side .part.brake-part.open .part-content {max-height: 140px;}
 
 .side .part .part-content .option-item {height: 100px; display: flex; border-bottom: 1px solid grey; cursor: pointer;}
-.side .part .part-content .option-item.disable {opacity: 0.5; cursor: default;}
-.side .part .part-content .option-item .option-img {height: 100%; width: 180px; background-color: #DDD; margin-right: 10px;}
+.side .part .part-content .option-item.disable {opacity: 0.5; cursor: default; display: none;}
+.side .part .part-content .option-item .option-img {height: 100%; width: 140px; background-color: #DDD; margin-right: 10px;}
+.side .part .part-content .option-item .option-img img {width: calc(100% - 4px); height: calc(100% - 4px); border: 2px solid white;}
+.side .part .part-content .option-item.active .option-img img {border-color: red;}
+.side .part .part-content .option-item .option-label {flex: 1;}
+.side .part .part-content .option-item .option-label .sub-title {font-size: 16px; font-weight: 700; margin-top: 6px;}
+.side .part .part-content .option-item .option-label .description {font-size: 14px; margin-top: 10px;}
 .side .part .part-content .price-line {display: flex; padding: 5px 20px;}
 .side .part .part-content .price-line label {font-size: 16px;}
 .side .part .part-content .price-line .right {flex: 1; text-align: right;}

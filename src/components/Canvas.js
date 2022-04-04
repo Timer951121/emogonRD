@@ -306,7 +306,7 @@ export default class CanvasComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, selCol, rotate, envMode} = this.state;
+		const {pageKey, rotate, envMode} = this.state;
 		return (
 			<div className={`back-board canvas ${pageKey==='canvas'?'active':''}`}>
 				<div id='container'></div>

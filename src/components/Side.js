@@ -1,5 +1,7 @@
 import React from 'react';
 import imgChevron from '../assets/images/chevron.png';
+import imgOptionRear from '../assets/images/side-option/rear.jpg';
+import imgOptionBrake from '../assets/images/side-option/brake.jpg';
 import { sizeArr, colArr, easyTwoArr } from '../data/info';
 
 export default class SideComponent extends React.Component {
@@ -54,9 +56,10 @@ export default class SideComponent extends React.Component {
 									if (!frontArr.includes(item.key)) return;
 									this.props.setSelFront(item.key);
 								}} key={idx}>
-									<div className='option-img'></div>
+									<div className='option-img'><img src={item.img}></img></div>
 									<div className='option-label'>
-										{item.label}
+										<div className='sub-title'>{item.label}</div>
+										<div className='description'>{item.description}</div>
 									</div>
 								</div>
 							) }
@@ -72,9 +75,10 @@ export default class SideComponent extends React.Component {
 										this.props.setRear(false);
 										this.props.setSelOption(item.key);
 									}} key={idx}>
-										<div className='option-img'></div>
+										<div className='option-img'><img src={item.img}></img></div>
 										<div className='option-label'>
-											{item.label}
+											<div className='sub-title'>{item.label}</div>
+											<div className='description'>{item.description}</div>
 										</div>
 									</div>
 								) }
@@ -86,7 +90,7 @@ export default class SideComponent extends React.Component {
 						<div className='title' onClick={()=>this.setState({openRear:!openRear})}><img src={imgChevron}></img> REAR PANEL</div>
 						<div className='part-content'>
 							<div className={`option-item ${rear?'active':''}`} onClick={() => { this.props.setRear(!rear); }}>
-								<div className='option-img'></div>
+								<div className='option-img'><img src={imgOptionRear}></img></div>
 								<div className='option-label'>
 									Yes
 								</div>
@@ -98,7 +102,7 @@ export default class SideComponent extends React.Component {
 						<div className='title' onClick={()=>this.setState({openBrake:!openBrake})}><img src={imgChevron}></img> BRAKE LIGHT</div>
 						<div className='part-content'>
 							<div className={`option-item ${brake?'active':''}`} onClick={() => { this.props.setBrake(!brake); }}>
-								<div className='option-img'></div>
+								<div className='option-img'><img src={imgOptionBrake}></img></div>
 								<div className='option-label'>
 									Yes
 								</div>

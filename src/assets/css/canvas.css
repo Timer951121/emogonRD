@@ -3,7 +3,8 @@
 .android .canvas { height: calc(100vh - 55px); }
 .ios .canvas { height: calc(100vh - 5px); }
 
-.set-item {position: absolute; z-index: 1; left: 20px; cursor: pointer; width: 70px; height: 70px; border-radius: 50%; box-shadow: 0px 0px 10px 5px rgb(0 0 0 / 20%); display: flex; justify-content: center; align-items: center;}
+.set-item {position: absolute; z-index: 1; left: 20px; cursor: pointer; width: 70px; height: 70px; border-radius: 50%; box-shadow: 0px 0px 10px 5px rgb(0 0 0 / 20%); display: flex; justify-content: center; align-items: center; transition: all 0.3s;}
+.set-item:hover {box-shadow: 0px 0px 15px 10px rgb(0 0 0 / 40%);}
 .set-item .circle {width: 50px; height: 50px; border-radius: 50%; border: 5px solid #108CCA; display: flex; align-items: center; justify-content: center;}
 .set-item .circle img {max-width: 30px; max-height: 30px;}
 .set-item.set-back {top: 50px;}
