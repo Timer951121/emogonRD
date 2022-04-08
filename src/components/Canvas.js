@@ -2,14 +2,19 @@ import React from 'react';
 import jQuery from 'jquery';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import { FlakesTexture } from 'three/examples/jsm/textures/FlakesTexture.js';
 
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
 // import Stats from 'three/examples/jsm/libs/stats.module';
 import modelCar from '../assets/model/test.fbx';
 import { modelH } from '../data/info';
 
+import imgIconRotate from '../assets/images/icon_rotate.png';
 import imgIconMoon from '../assets/images/icon_moon.png';
 import imgIconLight from '../assets/images/icon_light.png';
+import imgBloomBrake from '../assets/images/bloom-brake.png';
+import imgBloomIn from '../assets/images/bloom_in.png';
+import imgBloomOut from '../assets/images/bloom_out.png';
 
 import imgEnvPX from '../assets/images/px.png';
 import imgEnvPY from '../assets/images/py.png';
@@ -27,7 +32,7 @@ export default class CanvasComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		const {pageKey, selSize, selCol, selEasyTwo} = props;
-		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.bottomArr=[]; this.rearArr = []; this.backArr = []; this.boxArr = []; this.frontArr=[]; this.frameArr=[]; this.ceilingArr = []; this.easyTwoArr = [];
+		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.bottomArr=[]; this.rearArr = []; this.backArr = []; this.boxArr = []; this.frontArr=[]; this.frameArr=[]; this.ceilingArr = []; this.bloomArr = [];
 		this.state = {pageKey, rotate:1, selCol, selSize, selEasyTwo, envMode:'light'}; this.mouseStatus = 'none';
 	}
 
@@ -222,7 +227,18 @@ export default class CanvasComponent extends React.Component {
 
 	loadModel = () => {
 		const envMap0 = new THREE.CubeTextureLoader().load(imgEnv0Arr);
-		const bodyMat = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, envMap:envMap0, reflectivity:0, roughness:0, metalness:0 })
+		const normalMap3 = new THREE.CanvasTexture( new FlakesTexture() );
+		normalMap3.wrapS = THREE.RepeatWrapping;
+		normalMap3.wrapT = THREE.RepeatWrapping;
+		normalMap3.repeat.x = 10;
+		normalMap3.repeat.y = 6;
+		normalMap3.anisotropy = 16;
+		// const bodyMat = new THREE.MeshPhysicalMaterial({ clearcoat:0.9, envMap:envMap0, reflectivity:0, roughness:0, metalness:0 })
+		const bodyMat = new THREE.MeshPhysicalMaterial({ clearcoat:1.0, envMap:envMap0, clearcoatRoughness: 0.1, metalness: 0.5, roughness: 0.5, color: 0x00ff00, normalMap: normalMap3, normalScale: new THREE.Vector2( 0.15, 0.15 ) } );
+		const mapBloomBrake = new THREE.TextureLoader().load(imgBloomBrake),
+			mapBloomIn = new THREE.TextureLoader().load(imgBloomIn),
+			mapBloomOut = new THREE.TextureLoader().load(imgBloomOut);
+			// mapBloomBrake.rotation = mapBloomIn.rotation = mapBloomOut.rotation = Math.PI/2;
 		new FBXLoader().load( modelCar, (object) => {
 			object.traverse(child => {
 				if (child.name.includes('body')) { child.material = bodyMat; this.bodyMeshArr.push(child); }
@@ -249,6 +265,12 @@ export default class CanvasComponent extends React.Component {
 					child.oriCol = child.material.color.getHex();
 					this.lightMeshArr.push(child);
 					// child.material = new THREE.MeshBasicMaterial({color:colVal});
+				} else if (child.name.includes('BLOOM')) {
+					this.bloomArr.push(child);
+					child.material = new THREE.MeshBasicMaterial({transparent:true});
+					if 		(child.name.includes('BLOOM_center')) child.material.map = mapBloomBrake;
+					else if (child.name.includes('BLOOM_side_in')) child.material.map = mapBloomIn;
+					else if (child.name.includes('BLOOM_side_out')) child.material.map = mapBloomOut;
 				}
 				if (child instanceof THREE.Mesh) {
 					child.material.side = 2;
@@ -272,6 +294,7 @@ export default class CanvasComponent extends React.Component {
 			if (this.flagLight) item.material = new THREE.MeshBasicMaterial({color:item.oriCol});
 			else item.material = new THREE.MeshStandardMaterial({color:item.oriCol});
 		});
+		this.bloomArr.forEach(child => { child.visible = this.flagLight; });
 		this.flagLight = !this.flagLight;
 		setTimeout(() => { this.setLightAnimate(); }, 1000);
 	}
@@ -310,8 +333,8 @@ export default class CanvasComponent extends React.Component {
 		return (
 			<div className={`back-board canvas ${pageKey==='canvas'?'active':''}`}>
 				<div id='container'></div>
-				<div className='set-item set-rotate' onClick={()=> this.setState({rotate:rotate===1?0:1}) }>
-					<div className='circle'></div>
+				<div className={`set-item set-rotate ${rotate?'rotate':''}`} onClick={()=> this.setState({rotate:rotate===1?0:1}) }>
+					<div className='circle'><img src={imgIconRotate}></img></div>
 				</div>
 				<div className='set-item set-light' onClick={this.setEnvMode }>
 					<div className='circle'><img src={envMode==='light'?imgIconLight:imgIconMoon}></img></div>

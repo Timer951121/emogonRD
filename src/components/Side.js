@@ -20,7 +20,6 @@ export default class SideComponent extends React.Component {
 				this.setState({[key]:nextProps[key]}, () => {
 					if (key==='selSubPart') {
 						const optionArr = easyTwoArr.filter(item=>{return item.inArr.includes(this.state.selSubPart)});
-						console.log(optionArr)
 						this.setState({optionArr})
 					}
 				});
