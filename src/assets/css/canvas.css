@@ -8,8 +8,9 @@
 .set-item .circle {width: 50px; height: 50px; border-radius: 50%; border: 5px solid #108CCA; display: flex; align-items: center; justify-content: center;}
 .set-item .circle img {max-width: 30px; max-height: 30px;}
 .set-item.set-back {top: 50px;}
+.set-item.set-light {bottom: 250px;}
 .set-item.set-rotate {bottom: 150px;}
-.set-item.set-light {bottom: 50px;}
+.set-item.set-sun {bottom: 50px;}
 
 .set-item.set-rotate .circle img {border-radius: 50%; border: 1px solid #108CCA; padding: 4px;}
 .set-item.set-rotate.rotate {animation-name: wheelRotate; animation-duration: 5s; animation-iteration-count: infinite; animation-timing-function: linear;}

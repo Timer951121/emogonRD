@@ -11,7 +11,9 @@ import { modelH } from '../data/info';
 
 import imgIconRotate from '../assets/images/icon_rotate.png';
 import imgIconMoon from '../assets/images/icon_moon.png';
+import imgIconSun from '../assets/images/icon_sun.png';
 import imgIconLight from '../assets/images/icon_light.png';
+import imgIconUnLight from '../assets/images/icon_unlight.png';
 import imgBloomBrake from '../assets/images/bloom-brake.png';
 import imgBloomIn from '../assets/images/bloom_in.png';
 import imgBloomOut from '../assets/images/bloom_out.png';
@@ -33,7 +35,7 @@ export default class CanvasComponent extends React.Component {
 		super(props);
 		const {pageKey, selSize, selCol, selEasyTwo} = props;
 		this.wheelArr = []; this.bodyMeshArr = []; this.lightMeshArr = []; this.bottomArr=[]; this.rearArr = []; this.backArr = []; this.boxArr = []; this.frontArr=[]; this.frameArr=[]; this.ceilingArr = []; this.bloomArr = [];
-		this.state = {pageKey, rotate:1, selCol, selSize, selEasyTwo, envMode:'light'}; this.mouseStatus = 'none';
+		this.state = {pageKey, rotate:1, selCol, selSize, selEasyTwo, envMode:'sun', light:true}; this.mouseStatus = 'none';
 	}
 
 	componentDidMount() {
@@ -168,13 +170,13 @@ export default class CanvasComponent extends React.Component {
 	}
 
 	setEnvMode = () => {
-		this.setState({envMode:this.state.envMode==='light'?'dark':'light'}, () => {
+		this.setState({envMode:this.state.envMode==='sun'?'moon':'sun'}, () => {
 			const {envMode} = this.state, darkLight = 0.2;
-			this.ambientLight.intensity = envMode==='light'? 0.3 : darkLight;
-			this.shadowLight.intensity = envMode==='light'? 0.8 : darkLight;
-			this.frontLight.intensity = envMode==='light'? 0.4 : darkLight;
-			this.backLight.intensity = envMode==='light'? 0.4 : darkLight;
-			this.renderer.setClearColor(envMode==='light'?0xFFFFFF:0x555555, 1);
+			this.ambientLight.intensity = envMode==='sun'? 0.3 : darkLight;
+			this.shadowLight.intensity = envMode==='sun'? 0.8 : darkLight;
+			this.frontLight.intensity = envMode==='sun'? 0.4 : darkLight;
+			this.backLight.intensity = envMode==='sun'? 0.4 : darkLight;
+			this.renderer.setClearColor(envMode==='sun'?0xFFFFFF:0x555555, 1);
 		})
 	}
 
@@ -269,7 +271,7 @@ export default class CanvasComponent extends React.Component {
 					this.bloomArr.push(child);
 					child.material = new THREE.MeshBasicMaterial({transparent:true});
 					if 		(child.name.includes('BLOOM_center')) child.material.map = mapBloomBrake;
-					else if (child.name.includes('BLOOM_side_in')) child.material.map = mapBloomIn;
+					else if (child.name.includes('BLOOM_side_in')) {child.material.map = mapBloomIn;}
 					else if (child.name.includes('BLOOM_side_out')) child.material.map = mapBloomOut;
 				}
 				if (child instanceof THREE.Mesh) {
@@ -283,20 +285,22 @@ export default class CanvasComponent extends React.Component {
 			this.setColor();
 			this.totalGroup.add(object);
 			this.props.setLoading(false);
-			this.flagLight = false;
-			this.setLightAnimate();
+			this.setLightAnimate(true);
 			// this.rotateWheel();
 		}, (xhr) => { }, (error) => { console.log(error); } );
 	}
 
-	setLightAnimate = () => {
+	setLightAnimate = (flag, lightStop) => {
 		this.lightMeshArr.forEach(item => {
-			if (this.flagLight) item.material = new THREE.MeshBasicMaterial({color:item.oriCol});
+			if (flag) item.material = new THREE.MeshBasicMaterial({color:item.oriCol});
 			else item.material = new THREE.MeshStandardMaterial({color:item.oriCol});
 		});
-		this.bloomArr.forEach(child => { child.visible = this.flagLight; });
-		this.flagLight = !this.flagLight;
-		setTimeout(() => { this.setLightAnimate(); }, 1000);
+		this.bloomArr.forEach(child => { child.visible = flag; });
+		if (lightStop) return;
+		setTimeout(() => {
+			if (this.state.light) this.setLightAnimate(!flag);
+			else this.setLightAnimate(false, true);
+		}, 1000);
 	}
 
 	rotateWheel = () => {
@@ -329,15 +333,18 @@ export default class CanvasComponent extends React.Component {
 	}
 
 	render() {
-		const {pageKey, rotate, envMode} = this.state;
+		const {pageKey, rotate, envMode, light} = this.state;
 		return (
 			<div className={`back-board canvas ${pageKey==='canvas'?'active':''}`}>
 				<div id='container'></div>
+				<div className='set-item set-light' onClick={()=>this.setState({light: !light}, () => {if (this.state.light) {this.setLightAnimate(true);} }) }>
+					<div className='circle'><img src={light?imgIconLight:imgIconUnLight}></img></div>
+				</div>
 				<div className={`set-item set-rotate ${rotate?'rotate':''}`} onClick={()=> this.setState({rotate:rotate===1?0:1}) }>
 					<div className='circle'><img src={imgIconRotate}></img></div>
 				</div>
-				<div className='set-item set-light' onClick={this.setEnvMode }>
-					<div className='circle'><img src={envMode==='light'?imgIconLight:imgIconMoon}></img></div>
+				<div className='set-item set-sun' onClick={this.setEnvMode }>
+					<div className='circle'><img src={envMode==='sun'?imgIconSun:imgIconMoon}></img></div>
 				</div>
 			</div>
 		);
