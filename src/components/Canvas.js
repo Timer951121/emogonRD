@@ -139,6 +139,7 @@ export default class CanvasComponent extends React.Component {
 
 	setBottomMesh = () => {
 		const {selType, selSubPart} = this.state;
+		console.log(this.framePickUp)
 		// hor-pos 1.41, 2.12, 2.42 // ver-pos 0.231 1.583, 2.033
 		const topLevel = selSubPart.includes('space')?true:false, topH = topLevel?langSpaceY:langEasyY;
 		var selBottom = '', dis = 0, pushR = 1, frameName = 'frame_RAHMEN_';
@@ -296,11 +297,11 @@ export default class CanvasComponent extends React.Component {
 			else item.material = new THREE.MeshStandardMaterial({color:item.oriCol});
 		});
 		this.bloomArr.forEach(child => { child.visible = flag; });
-		if (lightStop) return;
-		setTimeout(() => {
-			if (this.state.light) this.setLightAnimate(!flag);
-			else this.setLightAnimate(false, true);
-		}, 1000);
+		// if (lightStop) return;
+		// setTimeout(() => {
+		// 	if (this.state.light) this.setLightAnimate(!flag);
+		// 	else this.setLightAnimate(false, true);
+		// }, 1000);
 	}
 
 	rotateWheel = () => {
@@ -337,10 +338,14 @@ export default class CanvasComponent extends React.Component {
 		return (
 			<div className={`back-board canvas ${pageKey==='canvas'?'active':''}`}>
 				<div id='container'></div>
-				<div className='set-item set-light' onClick={()=>this.setState({light: !light}, () => {if (this.state.light) {this.setLightAnimate(true);} }) }>
+				<div className='set-item set-light' onClick={()=>this.setState({light: !light}, () => {this.setLightAnimate(this.state.light);  }) }>
 					<div className='circle'><img src={light?imgIconLight:imgIconUnLight}></img></div>
 				</div>
-				<div className={`set-item set-rotate ${rotate?'rotate':''}`} onClick={()=> this.setState({rotate:rotate===1?0:1}) }>
+				<div className={`set-item set-rotate ${rotate?'rotate':''}`} onClick={()=> this.setState({rotate:rotate===1?0:1}, () => {
+					if (!this.state.rotate) {
+						this.wheelArr.forEach(wheel => { wheel.rotation.y = 0; });
+					}
+				}) }>
 					<div className='circle'><img src={imgIconRotate}></img></div>
 				</div>
 				<div className='set-item set-sun' onClick={this.setEnvMode }>
